@@ -43,11 +43,8 @@ def main():
     elif args.youthful:
         mode = 'y'
     
-    for i in cowsay.list_cows():
-        args.file = i
-        cowsay.get_cow(args.file)
-        print(i)
-        print(cowsay.cowsay(message, cow=args.file, eyes=args.eyes, tongue=args.tongue, width=args.width, preset=mode))
+
+    print(cowsay.cowsay(message, cow=args.file, eyes=args.eyes, tongue=args.tongue, width=args.width, preset=mode))
 
 if __name__ == '__main__':
     main()
