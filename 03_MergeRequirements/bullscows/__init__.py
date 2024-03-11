@@ -1,4 +1,5 @@
 import random
+import cowsay
 
 def bullscows(guess: str, secret: str) -> (int, int):
     bulls = sum(g == s for g, s in zip(guess, secret))
@@ -18,11 +19,14 @@ def gameplay(ask: callable, inform: callable, words: list[str]) -> int:
 
 def ask(prompt: str, valid: list[str] = None) -> str:
     user_input = input(prompt).strip().lower()
+    cow = random.choice(cowsay.list_cows())
     if valid is not None:
         while user_input not in valid:
+            print(cowsay.cowsay("Недопустимое слово!", cow=cow))
             user_input = ask(prompt, valid)
     return user_input
         
 
 def inform(format_string: str, bulls: int, cows: int) -> None:
-    print(format_string.format(bulls, cows))
+    cow = random.choice(cowsay.list_cows())
+    print(cowsay.cowsay(format_string.format(bulls, cows), cow=cow))
