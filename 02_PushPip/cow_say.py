@@ -17,14 +17,16 @@ def main():
     parser.add_argument('-t', '--tired', action='store_true', help='Yields a tired cow')
     parser.add_argument('-w', '--wired', action='store_true', help='Initiates wired mode')
     parser.add_argument('-y', '--youthful', action='store_true', help='Brings on the cow\'s youthful appearance')
+    parser.add_argument('-n', '--nowrap', action='store_true', help='Disable word wrap (-n)')
     args = parser.parse_args()
 
     if args.list:
         print(cowsay.list_cows())
         return
     
+    cowfile = None
     if args.file != 'default':
-        cowsay.get_cow(args.file)
+        cowfile = cowsay.get_cow(args.file)
 
     message = args.message if args.message else "Hello"
     mode = ''
@@ -43,8 +45,15 @@ def main():
     elif args.youthful:
         mode = 'y'
     
-
-    print(cowsay.cowsay(message, cow=args.file, eyes=args.eyes, tongue=args.tongue, width=args.width, preset=mode))
+    if cowfile is None:
+        cow_arg = args.file
+    else:
+        cow_arg = None
+    
+    if not args.nowrap:
+        print(cowsay.cowsay(message, cow=cow_arg, eyes=args.eyes, tongue=args.tongue, width=args.width, preset=mode, cowfile=cowfile))
+    else:
+        print(message)
 
 if __name__ == '__main__':
     main()
