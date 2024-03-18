@@ -4,11 +4,10 @@ import cowsay
 clients = {}
 
 async def chat(reader, writer):
-    # me = "{}:{}".format(*writer.get_extra_info('peername'))
     me = ""
     queue = asyncio.Queue()
     send_cmd = asyncio.create_task(reader.readline())
-    receive = asyncio.create_task(clients[me].get())
+    receive = asyncio.create_task(queue.get())
     is_reg = False
     while not reader.at_eof():
         done, pending = await asyncio.wait([send, receive], return_when=asyncio.FIRST_COMPLETED)
