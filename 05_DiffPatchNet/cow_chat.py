@@ -69,8 +69,12 @@ async def chat(reader, writer):
                         await writer.drain()
                     else:
                         send_to = cur_cmd[1]
+                        message = cur_cmd[2]
                         if send_to not in clients:
                             writer.write(f"Cow-reciever is not registered  \n".encode())
+                            await writer.drain()
+                        else:
+                            await clients[send_to].put(f"{cowsay.cowsay(message, cow=me)}\n")
                             await writer.drain()
                     
             elif q is receive:
@@ -78,20 +82,6 @@ async def chat(reader, writer):
                 writer.write(f"{q.result()}\n".encode())
                 await writer.drain()
 
-
-
-    while not reader.at_eof():
-        done, pending = await asyncio.wait([send, receive], return_when=asyncio.FIRST_COMPLETED)
-        for q in done:
-            if q is send:
-                send = asyncio.create_task(reader.readline())
-                for out in clients.values():
-                    if out is not clients[me]:
-                        await out.put(f"{me} {q.result().decode().strip()}")
-            elif q is receive:
-                receive = asyncio.create_task(clients[me].get())
-                writer.write(f"{q.result()}\n".encode())
-                await writer.drain()
     send_cmd.cancel()
     receive.cancel()
     print(me, "DONE")
