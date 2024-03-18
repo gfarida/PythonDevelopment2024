@@ -6,15 +6,15 @@ clients = {}
 async def chat(reader, writer):
     me = ""
     queue = asyncio.Queue()
-    send_cmd = asyncio.create_task(reader.readline())
     receive = asyncio.create_task(queue.get())
+    send_cmd = asyncio.create_task(reader.readline())
     is_reg = False
     while not reader.at_eof():
-        done, pending = await asyncio.wait([send, receive], return_when=asyncio.FIRST_COMPLETED)
+        done, pending = await asyncio.wait([send_cmd, receive], return_when=asyncio.FIRST_COMPLETED)
         for q in done:
             if q is send_cmd:
                 send_cmd = asyncio.create_task(reader.readline())
-                cur_cmd = q.result().decode().strip().spilt()
+                cur_cmd = list(q.result().decode().strip()).spilt()
 
                 if cur_cmd[0] == 'who':
                     writer.write(f"Registered users: {clients.keys()}\n".encode())
