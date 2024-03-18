@@ -14,9 +14,6 @@ async def chat(reader, writer):
         for q in done:
             if q is send_cmd:
                 send_cmd = asyncio.create_task(reader.readline())
-                # print(q.result().decode().strip())
-                # # print(list(q.result().decode().strip()))
-                # print(q.result().decode().strip().split())
                 cur_cmd = q.result().decode().strip().split()
 
                 if cur_cmd[0] == 'who':
@@ -54,16 +51,22 @@ async def chat(reader, writer):
                             writer.write(f"Please sign in \n".encode())
                             await writer.drain()
                         else:
+                            message = cur_cmd[1]
                             for out in clients.values():
                                 if out is not clients[me]:
-                                    await out.put(f"{me} {q.result().decode().strip()}")
+                                    await out.put(f"{cowsay.cowsay(message, cow=me)}\n")
                 
                 elif cur_cmd[0] == 'quit':
                     if len(cur_cmd) != 1:
                         writer.write(f"Usage: quit \n".encode())
                         await writer.drain()
                     else:
-                        break
+                        send_cmd.cancel()
+                        receive.cancel()
+                        print(me, "DONE")
+                        del clients[me]
+                        writer.close()
+                        await writer.wait_closed()
                 
                 elif cur_cmd[0] == 'say':
                     if len(cur_cmd) != 3:
@@ -84,12 +87,7 @@ async def chat(reader, writer):
                 writer.write(f"{q.result()}\n".encode())
                 await writer.drain()
 
-    send_cmd.cancel()
-    receive.cancel()
-    print(me, "DONE")
-    del clients[me]
-    writer.close()
-    await writer.wait_closed()
+    
 
 async def main():
     server = await asyncio.start_server(chat, '0.0.0.0', 1337)
