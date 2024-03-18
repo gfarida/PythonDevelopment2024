@@ -2,8 +2,8 @@ import cmd
 import shlex
 import cowsay
 
-EYES = ['oo', '$$', '**', '//', '--']
-TONGUE = ['UU', 'WW', 'JJ', 'PP']
+EYES = ['oo', 'OO', '00']
+TONGUE = ['U', 'WW', 'J', 'gg']
 
 class CowCmd(cmd.Cmd):
     prompt = "cmd>> "
@@ -51,6 +51,30 @@ class CowCmd(cmd.Cmd):
             print(cowsay.cowthink(args[0], cow=cow, eyes=eyes, tongue=tongue))
         except ValueError as e:
             print("Error:", e)
+    
+    def complete_cowsay(self, text, line, begidx, endidx):
+        words = (line[:endidx] + ".").split()
+        DICT = []
+
+        if len(words) == 3:
+            DICT = cowsay.list_cows()
+        if len(words) == 4:
+            DICT = EYES
+        if len(words) == 5:
+            DICT = TONGUE
+        return [c for c in DICT if c.startswith(text)]
+    
+    def complete_cowthink(self, text, line, begidx, endidx):
+        words = (line[:endidx] + ".").split()
+        DICT = []
+
+        if len(words) == 3:
+            DICT = cowsay.list_cows()
+        if len(words) == 4:
+            DICT = EYES
+        if len(words) == 5:
+            DICT = TONGUE
+        return [c for c in DICT if c.startswith(text)]
 
     def do_quit(self, args):
         """Exit the program"""
