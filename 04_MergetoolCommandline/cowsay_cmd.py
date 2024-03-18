@@ -21,11 +21,34 @@ class CowCmd(cmd.Cmd):
         """
         try:
             args = shlex.split(args)
-            message = args[0] if args else "Hello"
+            
+            if len(args) < 1 or len(args) > 4:
+                print("message argument is required")
+                return
+
             cow = args[1] if len(args) > 1 else 'default'
             eyes = args[2] if len(args) > 2 else "oo"
             tongue = args[3] if len(args) > 3 else "U"
-            print(cowsay.cowsay(message, cow=cow, eyes=eyes, tongue=tongue))
+            print(cowsay.cowsay(args[0], cow=cow, eyes=eyes, tongue=tongue))
+        except ValueError as e:
+            print("Error:", e)
+    
+    def do_cowthink(self, args):
+        """
+        Make the cow think something
+        Usage: cowthink message [cow] [eyes] [tongue]
+        """
+        try:
+            args = shlex.split(args)
+
+            if len(args) < 1 or len(args) > 4:
+                print("message argument is required")
+                return
+
+            cow = args[1] if len(args) > 1 else 'default'
+            eyes = args[2] if len(args) > 2 else "oo"
+            tongue = args[3] if len(args) > 3 else "U"
+            print(cowsay.cowthink(args[0], cow=cow, eyes=eyes, tongue=tongue))
         except ValueError as e:
             print("Error:", e)
 
