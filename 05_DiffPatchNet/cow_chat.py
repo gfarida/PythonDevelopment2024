@@ -14,7 +14,10 @@ async def chat(reader, writer):
         for q in done:
             if q is send_cmd:
                 send_cmd = asyncio.create_task(reader.readline())
-                cur_cmd = list(q.result().decode().strip()).spilt()
+                # print(q.result().decode().strip())
+                # # print(list(q.result().decode().strip()))
+                # print(q.result().decode().strip().split())
+                cur_cmd = q.result().decode().strip().split()
 
                 if cur_cmd[0] == 'who':
                     writer.write(f"Registered users: {clients.keys()}\n".encode())
