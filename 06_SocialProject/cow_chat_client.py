@@ -87,14 +87,12 @@ class CmdClient(cmd.Cmd):
 
     def receive_in_client(self):
         while True:
-            answ = self.s.recv(1024).decode()
-            
+            answ = self.s.recv(1024).decode()  
             if answ.startswith("***"):
-                _, msg_num, tip = answ.split(maxsplit=2)
+                magic, msg_num, tip = answ.split(maxsplit=2)
                 dict[int(msg_num)] = tip.split(",")
             else:
                 print(f"{answ}\n{self.prompt} {readline.get_line_buffer()}", end="", flush=True)
-
             if not answ:
                 break
 
