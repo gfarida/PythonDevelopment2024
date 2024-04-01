@@ -19,11 +19,13 @@ async def chat(reader, writer):
                 args = None
                 if len(cur_cmd) > 1:
                     args = cur_cmd[1:]
+                else:
+                    continue
 
                 if cur_cmd[0] == 'who':
             
                     if args:
-                        writer.write(f"*** {args[0]} {','.join(clients.keys())}\n".encode())
+                        writer.write(f"*** {args[0]} {','.join(clients.keys())}".encode())
                     else:
                         writer.write(f"Registered users: {clients.keys()}\n".encode())
                     await writer.drain()
@@ -31,7 +33,7 @@ async def chat(reader, writer):
                 elif cur_cmd[0] == 'cows':
                     available = set(cowsay.list_cows()) - set(clients.keys())
                     if args:
-                        writer.write(f"*** {args[0]} {','.join(available)}\n".encode())
+                        writer.write(f"*** {args[0]} {','.join(available)}".encode())
                     else:
                         writer.write(f"Free user names: {available}\n".encode())
                     await writer.drain()

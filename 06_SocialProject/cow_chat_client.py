@@ -90,8 +90,8 @@ class CmdClient(cmd.Cmd):
             answ = self.s.recv(1024).decode()
             
             if answ.startswith("***"):
-                msg_num, tip = answ.split()[1], answ.split()[2:]
-                dict[int(msg_num)] = tip
+                _, msg_num, tip = answ.split(maxsplit=2)
+                dict[int(msg_num)] = tip.split(",")
             else:
                 print(f"{answ}\n{self.prompt} {readline.get_line_buffer()}", end="", flush=True)
 
