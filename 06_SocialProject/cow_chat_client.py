@@ -35,8 +35,7 @@ class CmdClient(cmd.Cmd):
         self.s.send(f"yield {arg}\n".encode())
     
     def do_say(self, arg):
-        arg_list = self.parse_shlex(arg)
-        self.s.send(f"say {arg_list[0]} {arg_list[1]}\n".encode())
+        self.s.send(f"say {arg}\n".encode())
     
     def complete_login(self, text, line, begidx, endidx):
         args = shlex.split(text)
@@ -88,11 +87,11 @@ class CmdClient(cmd.Cmd):
 
     def receive_in_client(self):
         while True:
-            answ = socket.recv(1024).decode()
+            answ = self.s.recv(1024).decode()
             
             if answ.startswith("***"):
                 msg_num, tip = answ.split()[1], answ.split()[2:]
-                dict[int(msg_num)] = tip.split(",")
+                dict[int(msg_num)] = tip
             else:
                 print(f"{answ}\n{self.prompt} {readline.get_line_buffer()}", end="", flush=True)
 
