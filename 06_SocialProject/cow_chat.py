@@ -17,11 +17,18 @@ async def chat(reader, writer):
                 cur_cmd = q.result().decode().strip().split()
 
                 if cur_cmd[0] == 'who':
-                    writer.write(f"Registered users: {clients.keys()}\n".encode())
+            
+                    if args:
+                        writer.write(f"COMPL {args[0]} {','.join(clients.keys())}\n".encode())
+                    else:
+                        writer.write(f"Registered users: {clients.keys()}\n".encode())
                     await writer.drain()
 
                 elif cur_cmd[0] == 'cows':
-                    writer.write(f"Free user names: {set(cowsay.list_cows()) - set(clients.keys())}\n".encode())
+                    available = set(cowsay.list_cows()) - set(clients.keys())
+                    if args:
+
+                    writer.write(f"Free user names: {s}\n".encode())
                     await writer.drain()
 
                 elif cur_cmd[0] == 'login':
