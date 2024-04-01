@@ -5,26 +5,25 @@ import readline
 import socket
 import shlex
 
-
+dict = {}
 class CmdClient(cmd.Cmd):
 
     def __init__(self, socket):
         super().__init__()
         self.s = socket
-        self.on = True
-        self.is_login = False
+        self.msg_num = 0
         self.compl = None
 
     def do_login(self, cowname):
         self.s.send(f"login {cowname}\n".encode())
     
-    def do_who(self):
+    def do_who(self, arg):
         self.s.send("who\n".encode())
     
-    def do_cows(self):
+    def do_cows(self, arg):
         self.s.send("cows\n".encode())
     
-    def do_quit(self):
+    def do_quit(self, arg):
         self.on = False
         if self.is_login:
             self.s.send("quit\n".encode())
@@ -40,56 +39,65 @@ class CmdClient(cmd.Cmd):
         self.s.send(f"say {arg_list[0]} {arg_list[1]}\n".encode())
     
     def complete_login(self, text, line, begidx, endidx):
-        words = (line[:endidx]).split()
-        self.s.send("complete_cows\n".encode())
+        args = shlex.split(text)
+        start = []
+        if len(args) == 1:
+            start = args[-1]
+        elif line[-1] == " ":
+            start = None
+        else: 
+            return start
+        
+        self.s.send(f"cows {self.msg_num}\n".encode())
+        dict[self.msg_num] = None
 
-        while self.compl is None:
+        while not dict[self.msg_num]:
             pass
+    
+        DICT = dict[self.msg_num]
 
-        compls = [line.strip() for line in self.compls.split()[1:]]
-        if words[-1] != "login":
-            compls = [line for line in compls if line.startswith(words[-1])]
-            if len(compls) == 0:
-                compls = None
-        self.compls = None
-        return compls
+        self.msg_num += 1
+        if start is not None:
+            return [cow for cow in DICT if cow.startswith(start)]
+        else:
+            return DICT
     
     def complete_say(self, text, line, begidx, endidx):
-        words = (line[:endidx]).split()
-        self.s.send("complete_who\n".encode())
-        while self.compl is None:
-            pass
+        args = shlex.split(text)
+        start = []
+        if len(args) == 1:
+            start = args[-1]
+        elif line[-1] == " ":
+            start = None
+        else: 
+            return start
+        
+        self.s.send(f"who {self.msg_num}\n".encode())
+        dict[self.msg_num] = None
 
-        compls = [line.strip() for line in self.compls.split()[1:]]
-        if words[-1] != "say":
-            compls = [line for line in compls if line.startswith(words[-1])]
-            if len(compls) == 0:
-                compls = None
-        self.compls = None
-        return compls
+        while not dict[self.msg_num]:
+            pass
+    
+        DICT = dict[self.msg_num]
+
+        self.msg_num += 1
+        if start is not None:
+            return [cow for cow in DICT if cow.startswith(start)]
+        else:
+            return DICT
 
     def receive_in_client(self):
         while True:
-            if not self.on:
-                break 
-            get_data = self.sock.recv(1024).decode()
-
-            if get_data.startswith("compl"):
-                self.completion = get_data
-            elif get_data.startswith("quit"):
-                break
-            elif get_data.strip().startswith("Empty message"):
-                pass
+            answ = socket.recv(1024).decode()
+            
+            if answ.startswith("***"):
+                msg_num, tip = answ.split()[1], answ.split()[2:]
+                dict[int(msg_num)] = tip.split(",")
             else:
-                if get_data.strip().startswith(
-                    "You've logged in succesfully with cow name:"
-                ):
-                    self.logged = True
-                print(
-                    f"\n{get_data.strip()}\n{self.prompt}{readline.get_line_buffer()}",
-                    end="",
-                    flush=True,
-                )    
+                print(f"{answ}\n{self.prompt} {readline.get_line_buffer()}", end="", flush=True)
+
+            if not answ:
+                break
 
 
 if __name__ == "__main__":
